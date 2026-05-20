@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808772305860",
+    "project_id": "project-edumap-2026",
+    "storage_bucket": "project-edumap-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808772305860:android:24203d5bc089eedfda9a91",
+        "android_client_info": {
+          "package_name": "com.example.projecto_edumap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfNCoXXzAriP4DEA7cEOGITBr4un2EaO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
