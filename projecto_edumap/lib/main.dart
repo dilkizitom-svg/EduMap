@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'apresentacao/provedores/auth_provedor.dart';
-import 'apresentacao/telas/tela_login.dart';
+import 'apresentacao/widget_roteador.dart';
 
 void main() async {
   // Garante que os widgets estejam disponíveis antes de inicializar
@@ -33,12 +33,14 @@ class EduMapApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'EduMap',
-        debugShowCheckedModeBanner: false, // Remove a faixa "Debug"
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primaryColor: const Color(0xFF1565C0),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
+          useMaterial3: true,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: const TelaLogin(), // Primeira tela
+        home: const WidgetRoteador(), // O roteador decide qual tela mostrar
       ),
     );
   }

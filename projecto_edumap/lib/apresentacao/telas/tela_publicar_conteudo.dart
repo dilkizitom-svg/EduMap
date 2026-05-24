@@ -7,7 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../provedores/auth_provedor.dart';
 
 class TelaPublicarConteudo extends StatefulWidget {
-  const TelaPublicarConteudo({super.key});
+  final String? disciplinaPreSelecionada;
+  const TelaPublicarConteudo({super.key, this.disciplinaPreSelecionada});
 
   @override
   State<TelaPublicarConteudo> createState() => _TelaPublicarConteudoState();
@@ -24,10 +25,17 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
   bool _estaPublicando = false;
 
   final List<String> _disciplinas = [
-    'Matemática', 'Física', 'Português', 'História', 'Geografia', 'Biologia', 'Química', 'Inglês'
+    'Matemática', 'Física', 'Português', 'História', 'Geografia', 'Biologia', 'Química', 'Inglês',
+    'Álgebra Linear', 'Matemática Discreta', 'Programação I', 'Electrónica Digital', 'PRDM'
   ];
 
-  final List<String> _classes = ['7ª', '8ª', '9ª', '10ª', '11ª', '12ª'];
+  final List<String> _classes = ['7ª', '8ª', '9ª', '10ª', '11ª', '12ª', '1º Ano', '2º Ano', '3º Ano', '4º Ano'];
+
+  @override
+  void initState() {
+    super.initState();
+    _disciplinaSelecionada = widget.disciplinaPreSelecionada;
+  }
 
   final Color _primaryColor = const Color(0xFF1565C0);
 
@@ -55,7 +63,6 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
     final uid = auth.usuarioAtual?.uid;
 
     try {
-      // 1. Upload para Firebase Storage
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${_arquivoSelecionado!.name}';
       final storageRef = FirebaseStorage.instance.ref().child('content/$uid/$fileName');
       
@@ -69,7 +76,6 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
       final snapshot = await uploadTask;
       final fileUrl = await snapshot.ref.getDownloadURL();
 
-      // 2. Salvar metadados no Firestore
       await FirebaseFirestore.instance.collection('content').add({
         'title': _tituloController.text.trim(),
         'subject': _disciplinaSelecionada,
@@ -103,10 +109,10 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Publicar Material', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        title: const Text('Publicar Material', style: TextStyle(color: Colors.white)),
+        backgroundColor: _primaryColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _estaPublicando 
         ? Center(child: Column(
@@ -126,14 +132,13 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
                 children: [
                   _buildTextField('Título do Material', _tituloController),
                   const SizedBox(height: 16),
-                  _buildDropdown('Disciplina', _disciplinas, (val) => setState(() => _disciplinaSelecionada = val)),
+                  _buildDropdown('Disciplina', _disciplinas, _disciplinaSelecionada, (val) => setState(() => _disciplinaSelecionada = val)),
                   const SizedBox(height: 16),
-                  _buildDropdown('Classe', _classes, (val) => setState(() => _classeSelecionada = val)),
+                  _buildDropdown('Classe', _classes, _classeSelecionada, (val) => setState(() => _classeSelecionada = val)),
                   const SizedBox(height: 16),
                   _buildTextField('Descrição', _descricaoController, maxLines: 4),
                   const SizedBox(height: 24),
                   
-                  // Seletor de Arquivo
                   GestureDetector(
                     onTap: _selecionarArquivo,
                     child: Container(
@@ -192,8 +197,9 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
     );
   }
 
-  Widget _buildDropdown(String label, List<String> items, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, List<String> items, String? selected, Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
+      value: selected,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

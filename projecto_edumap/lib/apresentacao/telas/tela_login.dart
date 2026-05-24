@@ -1,11 +1,10 @@
-/// TELA DE LOGIN
-/// Permite o usuário entrar com e-mail/senha ou Google
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provedores/auth_provedor.dart';
 import 'tela_cadastro.dart';
-import 'tela_inicial.dart';
+import 'tela_inicial_estudante.dart';
+import 'tela_inicial_professor.dart';
+import 'tela_inicial_admin.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -15,11 +14,8 @@ class TelaLogin extends StatefulWidget {
 }
 
 class _TelaLoginState extends State<TelaLogin> {
-  // Controladores dos campos
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
-  
-  // Mostrar/esconder senha
   bool _mostrarSenha = false;
   
   @override
@@ -29,17 +25,36 @@ class _TelaLoginState extends State<TelaLogin> {
     super.dispose();
   }
   
+  void _redirecionar(BuildContext context, String? papel) {
+    Widget tela;
+    switch (papel?.toLowerCase()) {
+      case 'admin':
+        tela = const TelaInicialAdmin();
+        break;
+      case 'professor':
+        tela = const TelaInicialProfessor();
+        break;
+      case 'estudante':
+      case 'aluno':
+      default:
+        tela = const TelaInicialEstudante();
+        break;
+    }
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => tela),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvedor = Provider.of<AuthProvedor>(context);
     
-    // Se já estiver logado, vai para tela inicial
-    if (authProvedor.usuarioAtual != null) {
+    // Auto-login se já houver um utilizador carregado
+    if (authProvedor.usuarioAtual != null && !authProvedor.estaCarregando) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const TelaInicial()),
-        );
+        _redirecionar(context, authProvedor.usuarioAtual?.papel);
       });
     }
     
@@ -51,17 +66,11 @@ class _TelaLoginState extends State<TelaLogin> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 60),
-              
-              // LOGO
-              const Icon(Icons.school, size: 80, color: Colors.blue),
+              const Icon(Icons.school, size: 80, color: Color(0xFF1565C0)),
               const SizedBox(height: 16),
               const Text(
                 'EduMap',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
                 textAlign: TextAlign.center,
               ),
               const Text(
@@ -71,7 +80,6 @@ class _TelaLoginState extends State<TelaLogin> {
               ),
               const SizedBox(height: 48),
               
-              // CAMPO E-MAIL
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -83,7 +91,6 @@ class _TelaLoginState extends State<TelaLogin> {
               ),
               const SizedBox(height: 16),
               
-              // CAMPO SENHA
               TextField(
                 controller: _senhaController,
                 obscureText: !_mostrarSenha,
@@ -97,95 +104,57 @@ class _TelaLoginState extends State<TelaLogin> {
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 8),
-              
-              // ESQUECEU SENHA
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    _mostrarMensagem('Recuperação de senha em breve');
-                  },
-                  child: const Text('Esqueceu a senha?'),
-                ),
-              ),
               const SizedBox(height: 24),
               
-              // BOTÃO ENTRAR
               ElevatedButton(
                 onPressed: authProvedor.estaCarregando ? null : () async {
-                  // Validações
-                  if (_emailController.text.trim().isEmpty) {
-                    _mostrarErro('Digite seu e-mail');
-                    return;
-                  }
-                  if (_senhaController.text.isEmpty) {
-                    _mostrarErro('Digite sua senha');
+                  if (_emailController.text.trim().isEmpty || _senhaController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Preencha todos os campos')));
                     return;
                   }
                   
-                  // Tenta login
                   final sucesso = await authProvedor.login(
                     _emailController.text.trim(),
                     _senhaController.text,
                   );
                   
                   if (sucesso && mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TelaInicial()),
-                    );
+                    _redirecionar(context, authProvedor.usuarioAtual?.papel);
                   } else if (mounted && authProvedor.mensagemErro != null) {
-                    _mostrarErro(authProvedor.mensagemErro!);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(authProvedor.mensagemErro!), backgroundColor: Colors.red));
                   }
                 },
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1565C0),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: authProvedor.estaCarregando
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Entrar', style: TextStyle(fontSize: 16)),
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Entrar', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
+              
               const SizedBox(height: 16),
               
-              // BOTÃO GOOGLE
               OutlinedButton.icon(
                 onPressed: authProvedor.estaCarregando ? null : () async {
                   final sucesso = await authProvedor.loginComGoogle();
                   if (sucesso && mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TelaInicial()),
-                    );
+                    _redirecionar(context, authProvedor.usuarioAtual?.papel);
                   }
                 },
-                icon: Image.network(
-                  'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
-                  height: 20,
-                ),
+                icon: const Icon(Icons.login, color: Colors.red),
                 label: const Text('Entrar com Google'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               ),
+              
               const SizedBox(height: 24),
               
-              // LINK CADASTRO
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('Não tem conta? '),
                   TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const TelaCadastro()),
-                      );
-                    },
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaCadastro())),
                     child: const Text('Cadastre-se'),
                   ),
                 ],
@@ -194,18 +163,6 @@ class _TelaLoginState extends State<TelaLogin> {
           ),
         ),
       ),
-    );
-  }
-  
-  void _mostrarErro(String mensagem) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), backgroundColor: Colors.red),
-    );
-  }
-  
-  void _mostrarMensagem(String mensagem) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem)),
     );
   }
 }

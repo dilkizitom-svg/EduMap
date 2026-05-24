@@ -42,6 +42,18 @@
       <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/build" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/file_picker/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/build" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/projecto_edumap/windows/flutter/ephemeral/.plugin_symlinks/firebase_storage/example/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

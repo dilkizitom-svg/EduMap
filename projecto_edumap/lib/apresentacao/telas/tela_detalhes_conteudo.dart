@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../dados/models/conteudo_modelo.dart';
-import '../provedores/auth_provedor.dart';
+import 'package:projecto_edumap/dados/models/conteudo_modelo.dart';
+import 'package:projecto_edumap/apresentacao/provedores/auth_provedor.dart';
+import 'package:projecto_edumap/apresentacao/telas/tela_visualizador_pdf.dart';
+import 'package:projecto_edumap/apresentacao/telas/tela_visualizador_video.dart';
 
 class TelaDetalhesConteudo extends StatefulWidget {
   final ConteudoModelo conteudo;
@@ -18,13 +20,34 @@ class TelaDetalhesConteudo extends StatefulWidget {
 class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
   bool _estaBaixando = false;
   double _progresso = 0;
+  bool _ficheiroExiste = false;
+  String? _caminhoLocal;
 
   final Color _primaryColor = const Color(0xFF1565C0);
   final Color _chipBg = const Color(0xFFE3F2FD);
 
+  @override
+  void initState() {
+    super.initState();
+    _verificarSeFicheiroExiste();
+  }
+
+  Future<void> _verificarSeFicheiroExiste() async {
+    final diretorio = await getApplicationDocumentsDirectory();
+    final nomeArquivo = "${widget.conteudo.id}.${widget.conteudo.tipo}";
+    final path = "${diretorio.path}/$nomeArquivo";
+    final existe = await File(path).exists();
+    if (mounted) {
+      setState(() {
+        _caminhoLocal = path;
+        _ficheiroExiste = existe;
+      });
+    }
+  }
+
   Future<void> _baixarMaterial() async {
     final conexao = await Connectivity().checkConnectivity();
-    if (conexao == ConnectivityResult.none) {
+    if (conexao.contains(ConnectivityResult.none)) {
       _mostrarMensagem("Sem internet para download", erro: true);
       return;
     }
@@ -48,13 +71,12 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
       await response.forEach((chunk) {
         sink.add(chunk);
         baixado += chunk.length;
-        if (total > 0) {
+        if (total > 0 && mounted) {
           setState(() => _progresso = baixado / total);
         }
       });
       await sink.close();
 
-      // Regista download no Firestore
       await FirebaseFirestore.instance.collection('downloads').add({
         'userId': auth.usuarioAtual?.uid,
         'contentId': widget.conteudo.id,
@@ -63,7 +85,6 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
         'downloadedAt': FieldValue.serverTimestamp(),
       });
 
-      // Actualiza progresso do utilizador
       await FirebaseFirestore.instance
           .collection('users')
           .doc(auth.usuarioAtual?.uid)
@@ -75,6 +96,7 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
       }, SetOptions(merge: true));
 
       _mostrarMensagem("Download concluído!", sucesso: true);
+      _verificarSeFicheiroExiste();
     } catch (e) {
       _mostrarMensagem("Erro ao baixar: $e", erro: true);
     } finally {
@@ -84,6 +106,28 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
           _progresso = 0;
         });
       }
+    }
+  }
+
+  void _abrirVisualizador() {
+    if (_caminhoLocal == null || !_ficheiroExiste) return;
+
+    if (widget.conteudo.tipo.toLowerCase().contains('pdf')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TelaVisualizadorPdf(path: _caminhoLocal!, titulo: widget.conteudo.titulo),
+        ),
+      );
+    } else if (widget.conteudo.tipo.toLowerCase().contains('video') || widget.conteudo.tipo.toLowerCase().contains('mp4')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TelaVisualizadorVideo(path: _caminhoLocal!, titulo: widget.conteudo.titulo),
+        ),
+      );
+    } else {
+      _mostrarMensagem("Visualização direta não suportada.");
     }
   }
 
@@ -102,7 +146,7 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: Text('Detalhes', style: TextStyle(color: Colors.black)),
+        title: const Text('Detalhes', style: TextStyle(color: Colors.black)),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -124,13 +168,37 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
                   const SizedBox(height: 24),
                   _buildFileCard(),
                   const SizedBox(height: 32),
-                  _buildDownloadButton(),
+                  if (_ficheiroExiste)
+                    _buildActionButton(
+                      label: "Visualizar Conteúdo",
+                      icon: Icons.play_lesson,
+                      color: Colors.green,
+                      onPressed: _abrirVisualizador,
+                    )
+                  else
+                    _buildDownloadButton(),
                   const SizedBox(height: 32),
                   _buildInfoSection(),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required String label, required IconData icon, required Color color, required VoidCallback onPressed}) {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -175,7 +243,7 @@ class _TelaDetalhesConteudoState extends State<TelaDetalhesConteudo> {
                 Text(widget.conteudo.titulo, maxLines: 1, overflow: TextOverflow.ellipsis, 
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 Text(widget.conteudo.tipo.toUpperCase(), 
-                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
