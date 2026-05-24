@@ -86,7 +86,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                 controller: _senhaController,
                 obscureText: !_mostrarSenha,
                 decoration: InputDecoration(
-                  labelText: 'Senha (mínimo 6 caracteres)',
+                  labelText: 'Senha (mínimo 8 caracteres)',
                   prefixIcon: const Icon(Icons.lock),
                   suffixIcon: IconButton(
                     icon: Icon(_mostrarSenha ? Icons.visibility : Icons.visibility_off),
@@ -125,8 +125,8 @@ class _TelaCadastroState extends State<TelaCadastro> {
                     _mostrarErro('E-mail inválido');
                     return;
                   }
-                  if (_senhaController.text.length < 6) {
-                    _mostrarErro('A senha deve ter pelo menos 6 caracteres');
+                  if (_senhaController.text.length < 8) {
+                    _mostrarErro('A senha deve ter pelo menos 8 caracteres');
                     return;
                   }
                   if (_senhaController.text != _confirmarSenhaController.text) {
