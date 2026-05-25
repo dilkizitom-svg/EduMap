@@ -14,7 +14,7 @@ class WidgetRoteador extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Se a conexão ainda está sendo estabelecida
+        // Se a conexão ainda está a ser estabelecida
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
