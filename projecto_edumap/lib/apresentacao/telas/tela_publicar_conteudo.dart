@@ -62,7 +62,7 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
   final Color _primaryColor = const Color(0xFF1565C0);
 
   Future<void> _selecionarArquivo() async {
-    final resultado = await FilePicker.pickFiles(
+    final resultado = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'mp4', 'mkv', 'jpg', 'jpeg', 'png'],
     );
