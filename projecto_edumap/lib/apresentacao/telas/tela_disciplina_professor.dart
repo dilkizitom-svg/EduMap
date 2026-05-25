@@ -184,7 +184,7 @@ class TelaDisciplinaProfessor extends StatelessWidget {
     await batch.commit();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Materiais de exemplo adicionados'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Materiais exemplares adicionados'), backgroundColor: Colors.green),
       );
     }
   }
