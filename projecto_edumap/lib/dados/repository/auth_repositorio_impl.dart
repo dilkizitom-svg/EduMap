@@ -6,13 +6,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../dominio/repository/auth_repositorio.dart';
 import '../../dominio/entidades/usuario_entidade.dart';
-import '../models/usuario_modelo.dart';
 
 class AuthRepositorioImpl implements AuthRepositorio {
   // Instâncias dos serviços Firebase
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   
   /// Escuta mudanças de autenticação (login/logout)
   @override
@@ -111,17 +110,16 @@ class AuthRepositorioImpl implements AuthRepositorio {
   @override
   Future<UsuarioEntidade?> loginComGoogle() async {
     try {
-      // 1. Abre tela de escolha de conta Google
-      final GoogleSignInAccount? contaGoogle = await _googleSignIn.signIn();
+      // 1. Abre tela de escolha de conta Google (Versão nova: authenticate)
+      final GoogleSignInAccount? contaGoogle = await _googleSignIn.authenticate();
       if (contaGoogle == null) return null;
       
-      // 2. Pega as credenciais
-      final GoogleSignInAuthentication authGoogle = 
-          await contaGoogle.authentication;
+      // 2. Pega as credenciais (Síncrono na versão nova)
+      final GoogleSignInAuthentication authGoogle = contaGoogle.authentication;
       
       // 3. Cria credencial para o Firebase
       final credencial = firebase.GoogleAuthProvider.credential(
-        accessToken: authGoogle.accessToken,
+        accessToken: null, // AccessToken muitas vezes é opcional para login básico via Google no Firebase se o ID Token estiver presente
         idToken: authGoogle.idToken,
       );
       
@@ -154,7 +152,8 @@ class AuthRepositorioImpl implements AuthRepositorio {
         estaAtivo: dados?['estaAtivo'] ?? true,
       );
     } catch (e) {
-      throw 'Erro ao fazer login com Google';
+      print('Erro detalhado Google Sign-In: $e');
+      throw 'Erro ao fazer login com Google. Verifique sua conexão e configurações.';
     }
   }
   
