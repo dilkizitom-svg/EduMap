@@ -113,17 +113,38 @@ class _TelaLoginState extends State<TelaLogin> {
                     return;
                   }
                   
-                  final sucesso = await authProvedor.login(
-                    _emailController.text.trim(),
-                    _senhaController.text,
-                  );
-                  
-                  if (sucesso && mounted) {
-                    _redirecionar(context, authProvedor.usuarioAtual?.papel);
-                  } else if (mounted && authProvedor.mensagemErro != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(authProvedor.mensagemErro!), backgroundColor: Colors.red));
-                  }
-                },
+                  try {
+                    final sucesso = await authProvedor.login(
+                     _emailController.text.trim(),
+                     _senhaController.text,
+                    );
+
+                    if (!mounted) return;
+
+                    if (sucesso) {
+                      _redirecionar(context, authProvedor.usuarioAtual?.papel);
+                    } else {
+                      final erro = authProvedor.mensagemErro;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(erro ?? 'Falha no login. Tente novamente.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                   }
+                  } catch (e) {
+                    debugPrint('Erro inesperado no login: $e');
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Erro inesperado no login. Verifique a sua ligação ou tente novamente.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                }
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1565C0),
                   padding: const EdgeInsets.symmetric(vertical: 16),
