@@ -22,7 +22,7 @@ class AuthRepositorioImpl implements AuthRepositorio {
 
       // Busca dados extras no Firestore
       final documento = await _firestore
-          .collection('usuarios')
+          .collection('users')
           .doc(firebaseUsuario.uid)
           .get();
       final dados = documento.data();
@@ -50,7 +50,7 @@ class AuthRepositorioImpl implements AuthRepositorio {
 
       // Busca dados do Firestore
       final documento = await _firestore
-          .collection('usuarios')
+          .collection('users')
           .doc(resultado.user!.uid)
           .get();
       final dados = documento.data();
@@ -86,7 +86,7 @@ class AuthRepositorioImpl implements AuthRepositorio {
       await resultado.user?.updateDisplayName(nome);
 
       // 3. Cria documento no Firestore
-      await _firestore.collection('usuarios').doc(resultado.user!.uid).set({
+      await _firestore.collection('users').doc(resultado.user!.uid).set({
         'nome': nome.trim(),
         'email': email.trim(),
         'papel': 'aluno',
@@ -130,7 +130,7 @@ class AuthRepositorioImpl implements AuthRepositorio {
 
       // 5. Se for primeiro login, cria documento no Firestore
       if (resultado.additionalUserInfo?.isNewUser == true) {
-        await _firestore.collection('usuarios').doc(resultado.user!.uid).set({
+        await _firestore.collection('users').doc(resultado.user!.uid).set({
           'nome': resultado.user!.displayName ?? '',
           'email': resultado.user!.email ?? '',
           'papel': 'aluno',
@@ -141,7 +141,7 @@ class AuthRepositorioImpl implements AuthRepositorio {
 
       // 6. Busca dados do Firestore
       final documento = await _firestore
-          .collection('usuarios')
+          .collection('users')
           .doc(resultado.user!.uid)
           .get();
       final dados = documento.data();
