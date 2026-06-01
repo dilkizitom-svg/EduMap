@@ -86,6 +86,19 @@ class _TelaPublicarConteudoState extends State<TelaPublicarConteudo> {
     final auth = Provider.of<AuthProvedor>(context, listen: false);
     final uid = auth.usuarioAtual?.uid;
 
+    if (uid == null) {
+      if (mounted) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(
+           content: Text('Utilizador não autenticado. Faça login novamente.'),
+           backgroundColor: Colors.red,
+         ),
+       );
+       setState(() => _estaPublicando = false);
+     }
+     return;
+   }
+
     try {
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${_arquivoSelecionado!.name}';
