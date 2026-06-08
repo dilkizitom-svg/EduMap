@@ -1,45 +1,41 @@
-/// MODELO: Usuário (Camada de Dados)
-/// Extende a entidade e adiciona métodos para conversão com Firestore
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../dominio/entidades/usuario_entidade.dart';
 
 class UsuarioModelo extends UsuarioEntidade {
-  // Construtor chama a classe pai
+  final DateTime? criadoEm;
+
   UsuarioModelo({
     required super.uid,
-    required super.nome,
     required super.email,
-    super.papel,
+    required super.nome,
+    required super.papel,
+    super.telefone,
     super.estaAtivo,
-    super.classeAno,
-    super.criadoEm,
+    this.criadoEm,
   });
-  
-  /// Cria um UsuarioModelo a partir de um documento do Firestore
-  factory UsuarioModelo.fromFirestore(DocumentSnapshot documento) {
-    final dados = documento.data() as Map<String, dynamic>;
-    
+
+  // ✅ Supabase — campos em português
+  factory UsuarioModelo.fromSupabase(Map<String, dynamic> data) {
     return UsuarioModelo(
-      uid: documento.id,
-      nome: dados['nome'] ?? '',
-      email: dados['email'] ?? '',
-      papel: dados['papel'] ?? 'aluno',
-      estaAtivo: dados['estaAtivo'] ?? true,
-      classeAno: dados['classeAno'],
-      criadoEm: (dados['criadoEm'] as Timestamp?)?.toDate(),
+      uid:       data['id']        ?? '',
+      email:     data['email']     ?? '',
+      nome:      data['name']      ?? '',
+      papel:     data['role']      ?? 'estudante',
+      telefone:  data['phone']     ?? '',
+      estaAtivo: data['is_active'] ?? true,
+      criadoEm:  data['created_at'] != null
+          ? DateTime.tryParse(data['created_at'].toString())
+          : null,
     );
   }
-  
-  /// Converte para Map que vai para o Firestore
-  Map<String, dynamic> toFirestore() {
+
+  Map<String, dynamic> toSupabase() {
     return {
-      'nome': nome,
-      'email': email,
-      'papel': papel,
-      'estaAtivo': estaAtivo,
-      'classeAno': classeAno,
-      'criadoEm': FieldValue.serverTimestamp(),
+      'name':       nome,
+      'email':      email,
+      'role':       papel,
+      'phone':      telefone,
+      'is_active':  estaAtivo,
+      'created_at': criadoEm?.toIso8601String(),
     };
   }
 }

@@ -4,47 +4,19 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
+    if (kIsWeb) return web;
     switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+      case TargetPlatform.android: return android;
+      case TargetPlatform.windows: return windows;
+      default: throw UnsupportedError('Platform not supported');
     }
   }
+
+  // ATENÇÃO: Verifique se o projectId está correto no seu Console do Firebase
+  // Se o erro 404 persistir, altere o sufixo de .firebasestorage.app para .appspot.com
+  static const String _bucket = 'project-edumap-2026.firebasestorage.app';
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDqqeBafg9iWdKA0D1vbX8iPJ-hOnl6K-Q',
@@ -52,7 +24,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '808772305860',
     projectId: 'project-edumap-2026',
     authDomain: 'project-edumap-2026.firebaseapp.com',
-    storageBucket: 'project-edumap-2026.firebasestorage.app',
+    storageBucket: _bucket,
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -60,7 +32,7 @@ class DefaultFirebaseOptions {
     appId: '1:808772305860:android:24203d5bc089eedfda9a91',
     messagingSenderId: '808772305860',
     projectId: 'project-edumap-2026',
-    storageBucket: 'project-edumap-2026.firebasestorage.app',
+    storageBucket: _bucket,
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -69,6 +41,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '808772305860',
     projectId: 'project-edumap-2026',
     authDomain: 'project-edumap-2026.firebaseapp.com',
-    storageBucket: 'project-edumap-2026.firebasestorage.app',
+    storageBucket: _bucket,
   );
 }

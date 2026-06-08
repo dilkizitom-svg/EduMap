@@ -1,23 +1,26 @@
-/// ARQUIVO PRINCIPAL
-/// Ponto de entrada do aplicativo EduMap
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'apresentacao/provedores/auth_provedor.dart';
-import 'apresentacao/telas/tela_login.dart';
+import 'apresentacao/widget_roteador.dart';
 
 void main() async {
-  // Garante que os widgets estejam disponíveis antes de inicializar
+  // ← OBRIGATÓRIO antes de qualquer coisa
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicializa o Firebase com as configurações geradas
+
+  // ← Firebase primeiro
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  // Inicia o aplicativo
+
+  // ← Supabase a seguir
+  await Supabase.initialize(
+    url: 'https://jqbqpmfdnptttttojnqs.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxYnFwbWZkbnB0dHR0dG9qbnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDExNjcsImV4cCI6MjA5NTcxNzE2N30.2QFcSMHYFW39ukNxus9sKEC-GFSjVpX1KVHZxRBiXx0',
+  );
+
   runApp(const EduMapApp());
 }
 
@@ -28,17 +31,18 @@ class EduMapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Provider de autenticação disponível para toda a aplicação
         ChangeNotifierProvider(create: (_) => AuthProvedor()),
       ],
       child: MaterialApp(
         title: 'EduMap',
-        debugShowCheckedModeBanner: false, // Remove a faixa "Debug"
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+          primaryColor: const Color(0xFF1565C0),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF1565C0)),
+          useMaterial3: true,
         ),
-        home: const TelaLogin(), // Primeira tela
+        home: const WidgetRoteador(),
       ),
     );
   }
